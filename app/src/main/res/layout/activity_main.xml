@@ -31,9 +31,21 @@
         android:layout_centerHorizontal="true"
         android:id="@+id/button" />
     <Button
-        android:id="@+id/retrofit_btn"
+    android:id="@+id/retrofit_btn"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Retrofit"
+    />
+    <Button
+        android:id="@+id/rxjava_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Retrofit"
+        android:text="Rxjava"
+        />
+    <Button
+        android:id="@+id/retrofit_rxjava_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Retrofit+RXjava"
         />
 </LinearLayout>
