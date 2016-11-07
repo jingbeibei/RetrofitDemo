@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.myapplication.bean.PhoneResult;
 import com.example.myapplication.myinterface.PhoneService;
@@ -19,6 +20,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import cn.sharesdk.framework.ShareSDK;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,17 +42,20 @@ public class MainActivity extends AppCompatActivity {
     private Button rxjavaBtn;
     private static final String BASE_URL = "http://apis.baidu.com";
     private static final String API_KEY = "8e13586b86e4b7f3758ba3bd6c9c9135";
+    private Button shareSDK;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         button = (Button) findViewById(R.id.button);
         editText = (EditText) findViewById(R.id.edit);
         retrofitBtn = (Button) findViewById(R.id.retrofit_btn);
         textView = (TextView) findViewById(R.id.textView);
         retrofitRxjavaBtn = (Button) findViewById(R.id.retrofit_rxjava_btn);
-        rxjavaBtn= (Button) findViewById(R.id.rxjava_btn);
+        rxjavaBtn = (Button) findViewById(R.id.rxjava_btn);
+        shareSDK = (Button) findViewById(R.id.share);
 
         //Retrofit普通查询手机归属地
         retrofitBtn.setOnClickListener(new View.OnClickListener() {
@@ -60,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         //Rxjava查询
-       rxjavaBtn.setOnClickListener(new View.OnClickListener() {
+        rxjavaBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 rxjavaQuery();
@@ -81,12 +86,20 @@ public class MainActivity extends AppCompatActivity {
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
                 shareIntent.setType("text/plain");
-                shareIntent.putExtra(Intent.EXTRA_TEXT, "http://blog.csdn.net/chadeltu/article/details/43450713");
+                String s = editText.getText().toString();
+                shareIntent.putExtra(Intent.EXTRA_TEXT, s);
                 startActivity(shareIntent);
             }
         });
-    }
 
+        shareSDK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ShareActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
 
 
     private void query() {
@@ -119,15 +132,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     //Rxjava
     private void rxjavaQuery() {
-        Observable.create(new Observable.OnSubscribe<PhoneResult>(){
+        Observable.create(new Observable.OnSubscribe<PhoneResult>() {
 
             @Override
             public void call(Subscriber<? super PhoneResult> subscriber) {
                 //请求网络获取数据
-               String s= get(BASE_URL+"/showapi_open_bus/mobile/find?num="+editText.getText().toString());
-                PhoneResult pr= new Gson().fromJson(s,PhoneResult.class);
+                String s = get(BASE_URL + "/showapi_open_bus/mobile/find?num=" + editText.getText().toString());
+                PhoneResult pr = new Gson().fromJson(s, PhoneResult.class);
                 subscriber.onNext(pr);
                 subscriber.onCompleted();
             }
@@ -189,8 +203,9 @@ public class MainActivity extends AppCompatActivity {
 
                 });
     }
+
     //get请求
-    public  String get(String url) {
+    public String get(String url) {
         HttpURLConnection conn = null;
         try {
             // 利用string url构建URL对象
@@ -200,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
             conn.setRequestMethod("GET");
             conn.setReadTimeout(5000);
             conn.setConnectTimeout(10000);
-            conn.addRequestProperty("apikey",API_KEY);
+            conn.addRequestProperty("apikey", API_KEY);
 //            conn.addRequestProperty("num",editText.getText().toString());
             int responseCode = conn.getResponseCode();
             if (responseCode == 200) {
@@ -209,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
                 String response = getStringFromInputStream(is);
                 return response;
             } else {
-                throw new NetworkErrorException("response status is "+responseCode);
+                throw new NetworkErrorException("response status is " + responseCode);
             }
 
         } catch (Exception e) {
@@ -223,7 +238,8 @@ public class MainActivity extends AppCompatActivity {
 
         return null;
     }
-    private  String getStringFromInputStream(InputStream is)
+
+    private String getStringFromInputStream(InputStream is)
             throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         // 模板代码 必须熟练
